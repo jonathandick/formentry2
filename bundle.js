@@ -235,9 +235,6 @@ function schemaToFormlyForm(schema) {
     return {compiledSchema:compiledSchema,questionMap:questionMap};
 }
 
-var form = schemaToFormlyForm(schema);
-window.form = form;
-console.log(form);
 
 //uses question.type to determine if this can be asked more than once.
 function allowsRepeating(question) {
@@ -275,8 +272,6 @@ var obsRestPayloadRepeatingObsGroup =
 //you can not know by looking at the database the order of these obs's.
 //returns true if found and populated
 function populateModelWithObs(model,payloadObs,questionMap) {
-    //console.log(payloadObs);
-    //console.log(model);
     model.value = payloadObs.value;
     model.obsId = payloadObs.obsId;
     model.defaultValue = payloadObs.value;
@@ -287,7 +282,6 @@ function populateModelWithObs(model,payloadObs,questionMap) {
                 populateModelWithObs(model.obsGroup[payloadNestedObs.concept][0],payloadNestedObs,questionMap);
             }
             else if(allowsRepeating(model.obsGroup[payloadNestedObs.concept][0].schemaQuestion)) {
-                //console.log("populateModelWithObs: repeating");
                 var fields = [];
                 //build new formly field
                 questionsToFormlyFields([model.obsGroup[payloadNestedObs.concept][0].schemaQuestion],fields,model.obsGroup,questionMap);
@@ -317,7 +311,6 @@ function populateFormWithObs(form,restObs) {
                                         }
                                     }
                                     insertIntoFormlyFields(index,questionModel[0].schemaQuestion,section.formlyFields,section.sectionModel,form.questionMap);
-                                    console.log(section.formlyFields[index]);
                                     populateModelWithObs(section.formlyFields[index].model,o,form.questionMap);
                                 }
                             }
@@ -329,9 +322,14 @@ function populateFormWithObs(form,restObs) {
     );
 }
 
+
+var form = schemaToFormlyForm(schema);
+window.form = form;
+console.log(form);
+
 //populateFormWithObs(form,obsRestPayload);
 //populateFormWithObs(form,obsRestPayloadRepeatingObs);
-populateFormWithObs(form,obsRestPayloadRepeatingObsGroup);
+//populateFormWithObs(form,obsRestPayloadRepeatingObsGroup);
 
 },{"./lodash.js":2}],2:[function(require,module,exports){
 (function (global){
