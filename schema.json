@@ -1,0 +1,95 @@
+/*
+Introduction
+This document outlines the rules for creating a valid schema.
+Each question will serve as a template to produce a valid angular formly field.
+
+Rules
+1. Every form has at least 1 page
+2. Every page has at least 1 tab or 1 section (tabs are optional)
+3. Every tab has at least 1 section
+4. An question can contain other questions. However a group of questions exists only within a section. In other words,
+   you can not have a group with questions in different sections of the form.
+5. The questions array is ordered: questions will appear on the form in the order they are found in the quetions array.
+6. Each modelType must be associated with a function to produce a formly field. This function takes a question and a model and populates the model.
+7. A question can only be asked once on a common level of a particular branch. In other words, you can not ask, "Are you on ARVs?"
+   in more than one place on the form unless the question is nested within another question (and that question does not already ask the question).
+8. A question can be asked have multiple answers only if it is of an appropriate type, e.g. "group_repeating", "multi-checkbox"
+9. As a question may have multiple answers, the model should store answers as arrays, not as strings/numbers etc.
+10. Metadata specific to a question will be placed in the questionMetadata object of a question.
+    For example, each obs needs a concept and this would be placed in the questionMetadata object.
+*/
+
+{
+  "name":"",
+  "encounterType":"uuid",
+  "form":"uuid",
+  "processor":"",
+  "pages": [
+    {
+      "label":"Page Name",
+      "tabs": [
+          {
+            "label":"Tab Name",
+            "sections": [
+                {
+                  "label":"Section Name",
+                  "questions": [
+                    {
+                      "modelType":"obs | obsGroup | encounterType | encounterDatetime | encounterProvider | encounterLocation | personAttribute | obsDrug | conceptSearch | obsProblem | location-attribute",
+                      "type": "select | text | date | number | multiCheckbox | radio | ui-select-extended | group_repeating",
+                      "label":"Text to show to the user on the form",
+                      "id":"unique name to be used in validation as placeholder for answer to this question",
+                      "required":"boolean, optional",
+                      "default":"default value for model", //optional
+                      "questionMetadata": {
+                        "concept":"", // but should be only allowable in types of "obs" or "obsGroup"
+                      },
+                      "questions":[], //
+                      "hide": [
+                        {
+                          "field":"id of question",
+                          "value": ["array of answers"]
+                        }
+                      ],
+                      "alerts":[ //This triggers an alert to the user based on the expression. Get's evaluated after user selects an answer
+                        {
+                          "js_expression":"",
+                          "message":""
+                        }
+                      ]
+                      "validators":[
+                        {
+                          "type": "date",
+                          "allowFutureDates": "true | false",
+                        },
+                        {
+                          "type": "js_expression",
+                          "failsWhenExpression": "javascript expression, functions:'isEmpty,arrayContains', variables:'ids, myValue'"
+                          "message": "error message shown when validation fails"
+                        },
+                        {
+                          "type":"conditionalRequired",
+                          "referenceQuestionId":"id of another form question",
+                          "referenceQuestionAnswers": ['answer1','answerN']
+                        },
+                        {
+                          "type":"conditionalAnswered",
+                          "message":"",
+                          "referenceQuestionId":"",
+                          "referenceQuestionAnswers":[]
+                        }
+                      ],
+                      "disableExpression": [
+                          {
+                            "disableWhenExpression": "same as js_expression"
+                          }
+                        ]
+                     }
+                   ]
+                 }
+               ]
+             }
+           ]
+         }
+       ]
+}

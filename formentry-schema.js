@@ -1,176 +1,39 @@
-{
-	name:"",
-	uuid:"",
-	processor:"",
-	"pages": [
-		{
-			"label": "Page Name",
-			"sections": [
-				"label": "Section Name",
-				"questions": [
-					{ 
-						"type": "properties allowable in any type",
-						
-						"label":"",						
-						"id":"unique name to be used in validation as placeholder for answer to this question",
-						"required":"boolean, optional",
-						"concept":"", //but should be only allowable in types of "obs" or "obsGroup"
-						"default":"default value for model", //optional
-						"hide": [
-							{
-								"field":"id of question",
-								"value": ["array of answers"]
-							}
-						],
-						
-						"validators":[
-							{
-								"type": "date",
-								"allowFutureDates": "true | false",
-							},
-							{
-								"type": "js_expression",
-								"failsWhenExpression": "javascript expression, functions:'isEmpty,arrayContains', variables:'ids, myValue'"
-								"message": "error message shown when validation fails"
-							},
-							{
-								"type":"conditionalRequired",
-								"referenceQuestionId":"id of another form question",
-								"referenceQuestionAnswers": ['answer1','answerN']
-							},
-							{
-								"type":"conditionalAnswered",
-								"message":"",
-								"referenceQuestionId":"",
-								"referenceQuestionAnswers":[]
-							
-						],
-						"disableExpression": [
-							{
-								"disableWhenExpression": "same as js_expression"
-							}
-						]
-					},						
-					{
-						"modelType":"obsGroup", //JJ suggestion
-						"type":"group" ---> should be "obsGroup"
-						"concept":"",						
-						"questions": [
-						]
-					},
-					{
-						"modelType":"obs"
-						"type:"select",
-						"answers": [
-							{
-								"concept":"",
-								"label":"",
-							}
-						]
-					},
-					{
-						"modelType":"obs",
-						"type":"number",
-						"max":"",
-						"min":""						
-					},
-					{
-						"modelType":"obsDrug"
-						"type":"select"
-					},
-					{
-						"modelType":"obs"
-						"type":"multiCheckbox",
-						"answers": [
-							{
-								"concept":"",
-								"label":"",
-							}
-						]						
-					},
-					{
-						
-						"modelType":"encounterDate",												
-						"type":"date"
-					},					
-					{
-						"modelType":"encounterLocation",
-						"type":"select"
-						
-					},
-					{
-						"modelType":location-attribute",
-						"attributeType":"uuid of attribute"
-					},
-					{
-						modelType:"obsGroup",
-						"type":"group_repeating",
-						"concept":"",
-						"questions": [
-						]
-					},
-					{
-						"modelType":"obsProblem",						
-						"type":""
-					},					
-					{
-						"modelType":"obs"
-						"type":"text"
-					},
-					{
-						"type":"radio"
-					},
-					{
-						"type":"ui-select-extended"
-					},
-					{
-						"type":"concept-search-select"
-					},
-					{
-						"type":
-					},
-				],							
-			]	
-		}	
-	]
-}
 
-
-var modelType = {	
+var modelType = {
 	createFormlyField: function(schemaQuestion) {
-		
-	}	
+
+	}
 	setModelValue: function(model,schemaQuestion) {},
 	getModelValue: function(model,schemaQuestion) {},
 };
 
-var modelTypes = 
+var modelTypes =
 {
 	"modelType": modelType
 };
 
 schema rules
-0. A question can on be asked once on a common level of a particular branch. In other words, you can not ask, "Are you on ARVs?" in more than one place on the form unless the question is nested within another question (and that question does not already ask the question). 
+0. A question can on be asked once on a common level of a particular branch. In other words, you can not ask, "Are you on ARVs?" in more than one place on the form unless the question is nested within another question (and that question does not already ask the question).
 1. A question can be asked have multiple answers only if it is of an appropriate type, e.g. "group_repeating", "multi-checkbox"
 2. A question can have unlimited levels of nested questions. 
 
 
 
 
-model = {obs : 
+model = {obs :
 	{
 		"key1": {concept:"uuid",value:"value"},
 		"key2": {
 					concept:"uuid2",
-					obsGroup: {				
+					obsGroup: {
 					}
 				}
 	}
 
 
 
-//each uuid only allowed to occur once per level. 	
-//for convenience, make each key point to an array. if the schema allows, this will have multiple objects, or just one if not allowed to //repeat. 
+//each uuid only allowed to occur once per level.
+//for convenience, make each key point to an array. if the schema allows, this will have multiple objects, or just one if not allowed to //repeat.
 function obsTypeToFormlyField(question,model) {
 	var key = 'value';
 	var field = {};
@@ -178,21 +41,21 @@ function obsTypeToFormlyField(question,model) {
 	if("questions" in question) {
 		m.obsGroup = {};
 	}
-	
+
 	if(question.concept in model) { //add m to the array
 		model[question.concept].push(m);
 	}
 	else { //create array with just m
 		model[question.concept] = [m];
-	}		
-	
+	}
+
 	field = {
 		key:key,
 		model:m
 	}
-	
-	field.recursiveModel = m.obsGroup;	
-	
+
+	field.recursiveModel = m.obsGroup;
+
 	return field;
 }
 
@@ -203,8 +66,8 @@ function questionsToFormlyFields(questions,fields,model) {
 		if("questions" in question) {
 			//the last model will be the one just created
 			//!!this is specific to obs implementation
-			
-			questionsToFormlyField(question.questions,fields,field.recursiveModel); 
+
+			questionsToFormlyField(question.questions,fields,field.recursiveModel);
 		}
 	}
 }
@@ -222,27 +85,27 @@ function schemaToModel(schema) {
 }
 
 
-model = {obs : 
+model = {obs :
 	{
 		"key1": {concept:"uuid",obsId:12,value:"12",initialValue:"120","schemaQuestion":question,"formlyField":field},
 		"key2": {
-					concept:"uuid2", //problably want a field like "hasData" which is set when any question in the obsGroup gets a 
-									 // value. this can be used to more quickly find obsGroups that need to be put in the payload 
-					obsGroup: {				
+					concept:"uuid2", //problably want a field like "hasData" which is set when any question in the obsGroup gets a
+									 // value. this can be used to more quickly find obsGroups that need to be put in the payload
+					obsGroup: {
 					}
 				}
 
 	}
 
-//uses question.type to determine if this can be asked more than once. 
+//uses question.type to determine if this can be asked more than once.
 function allowsRepeating(question) {
 
 }
-	
+
 //A question may only be asked once per section. It may be allowed to have multiple answers.
-//This means that we can use the concept uuid as the key and in the model, use an array to hold moultiple answers. 
+//This means that we can use the concept uuid as the key and in the model, use an array to hold moultiple answers.
 //OpenMRS does not support ordering to the way these questions are answered. I.e. if there are multiple obs with the same concept,
-//you can not know by looking at the database the order of these obs's. 
+//you can not know by looking at the database the order of these obs's.
 //returns true if found and populated
 function populateModelWithObs(model,restObs) {
 	_.each(restObs,function(o) {
@@ -251,12 +114,12 @@ function populateModelWithObs(model,restObs) {
 			var field;
 			if(m.obsId === undefined) field = m.field;
 			else if(allowsRepeating(m.question) {
-				field = obsTypeToFormlyField(model,m.question);				
+				field = obsTypeToFormlyField(model,m.question);
 			}
 			else {
 				field = null;
 			}
-			if(field !== null) {				
+			if(field !== null) {
 				field.setValue(o.value);
 				if(o.obsGroup) {
 					populateModelWithObs(model.obsGroup,o.obsGroup);
@@ -283,11 +146,11 @@ function addRepeatingObsGroup(section,rootField,fieldsToCopy) {
 	schemaQuestion = questionModelMap[rootfield.key];
 	createFormlyFields([schemaQuestion],section); //need to figure out way to get index for key creation
 }
-	
 
 
-//note that any group can NOT span across sections. 
-var pages = 
+
+//note that any group can NOT span across sections.
+var pages =
 	[
 		[ //page 1
 			[ //section 1.1
@@ -304,7 +167,7 @@ var pages =
 			],
 			[//section 2.2
 			]
-		]	
+		]
 	];
 
 
@@ -322,12 +185,7 @@ var pages =
 algorithm for populating model with existing data:
 1. the result from openmrs provides a concept uuid. therefore, the concept uuid should be used to create the key.
 2. look for all keys in the model that "contain" the uuid. we must assume there is no order to questions on the same level. so if a question twice, we fill the answer with the first empty field. We determine if a field is not-empty by the presence of an "initialValue" property in the field.data array which is not undefined.
-3. if empty, set field.data.initialValue. 
-4. If non-empty, keep looking for another a question. 
-5. If the question is a repeating_field, then add the answer to the array modeling that repeating field. This means that a form should only have a single repeating field on the same schema "level" as it's not possible to know if the nth obs in an existing encounter belongs to either a repeating element or another question with the same uuid. 
-6. 
-
-
-
-
-
+3. if empty, set field.data.initialValue.
+4. If non-empty, keep looking for another a question.
+5. If the question is a repeating_field, then add the answer to the array modeling that repeating field. This means that a form should only have a single repeating field on the same schema "level" as it's not possible to know if the nth obs in an existing encounter belongs to either a repeating element or another question with the same uuid.
+6.
