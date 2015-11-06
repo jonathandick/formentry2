@@ -289,7 +289,6 @@ function populateModelWithObs(model,payloadObs,questionMap) {
             }
 
         }
-
     });
 }
 
